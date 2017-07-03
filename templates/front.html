@@ -1,0 +1,20 @@
+{% extends "main.html" %}
+{% block content %}
+
+<h3>Recently added</h3>
+{% for item in recent %}
+    <div class="item">
+        <a href="{{ url_for('viewItem', category_id=item.category.id, item_id=item.id) }}">
+        <span class="item-thumbnail">
+            {% if item.picture %}
+                <img src="{{ item.picture }}" alt="{{ item.name }} thumbnail" class="img-responsive">
+            {% else %}
+                <img src="https://cdn4.iconfinder.com/data/icons/travel-solid-style/24/sign-no-photo-128.png" alt="No thumbnail for {{ item.name }}" class="img-responsive no-thumbnail">
+            {% endif %}
+        </span>{{ item.name }}</a> 
+        <i>({{ item.category.name }})</i></div>
+{% endfor %}
+<hr>
+<a href="{{ url_for('newItem') }}" class="btn btn-primary"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span> New item</a>
+
+{% endblock content %}

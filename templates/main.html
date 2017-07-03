@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <title>Item Catalog App</title>
+
+    <!-- Bootstrap -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap-theme.min.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+    <div class="container">
+        <nav class="navbar navbar-default">
+            <div class="container-fluid">
+                <div class="navbar-header">
+                    <button class="navbar-toggle collapsed" type="button" data-toggle="collapse" data-target="#navbar-menu" aria-espanded="false">
+                        <span class="sr-only">Toggle navigation</span>
+                        <span class="glyphicon glyphicon-user"></span>
+                    </button>
+                    <a href="{{ url_for('front') }}" class="navbar-brand">Item catalog app</a>
+                </div>
+                <!-- Navbar menu -->
+                <div id="navbar-menu" class="navbar-collapse collapse">
+                    <!-- <p class="navbar-text navbar-left">Signed in as Steinar Utstrand</p> -->
+                    <button type="button" class="btn btn-default navbar-btn navbar-right" onclick="window.location='{{ url_for('login') }}'">Sign in</button>
+                </div>
+            </div>
+        </nav>
+        <div class="row">
+            <div class="col-sm-8 col-sm-push-4 col-md-9 col-md-push-3">
+                {% include "flash.html" %}
+                {% block content %}
+                    
+                {% endblock content %}
+            </div>
+            <div class="col-sm-4 col-sm-pull-8 col-md-3 col-md-pull-9">
+                {% include "categorylist.html" %}
+            </div>
+        </div>
+
+    </div>
+
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <!-- Include all compiled plugins (below), or include individual files as needed -->
+    <script src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/func.js') }}"></script>
+  </body>
+</html>

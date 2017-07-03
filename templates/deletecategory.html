@@ -1,0 +1,17 @@
+{% extends "main.html" %}
+{% block content %}
+
+<h3>Delete category {{ category.name }}</h3>
+<form method="POST" onsubmit="return validateForm('del')">
+    <p>Are you sure you want to delete <b>{{ category.name }}</b>?<br>
+    This will also delete all items in the category.</p>
+    <div class="checkbox">
+        <label for="confirm">
+            <input type="checkbox" name="confirm" id="confirm"> Yes, I am sure
+        </label>
+    </div>
+    <button type="submit" class="btn btn-danger"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span> Delete</button>
+    <a class="btn btn-default" href="{{ url_for('editCategories') }}"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span> Cancel</a>
+</form>
+
+{% endblock content %}

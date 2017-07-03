@@ -1,0 +1,11 @@
+{% with messages=get_flashed_messages() %}
+    {% if messages %}
+        {% for message in messages %}
+          {% if message[:3] == "!E!" %}
+            <div class="alert alert-danger alert-dismissible"><button class="close" type="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>{{ message[3:]|safe }}</div>
+          {% else %}
+            <div class="alert alert-success alert-dismissible"><button class="close" type="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>{{ message|safe }}</div>             
+          {% endif %}    
+        {% endfor %}
+    {% endif %}
+{% endwith %}

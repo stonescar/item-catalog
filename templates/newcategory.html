@@ -1,0 +1,15 @@
+{% extends "main.html" %}
+{% block content %}
+
+<h3>Add new category</h3>
+<form method="POST" onsubmit="return validateForm('new')">
+    <div class="form-group" id="name-group">
+        <label for="name">Name</label>
+        <input type="text" class="form-control" name="name" id="name" aria-describedby="err-mess">
+        <span class="help-block" id="err-mess" hidden></span>
+    </div>
+    <button type="submit" class="btn btn-primary"><span class="glyphicon glyphicon-ok" aria-hidden="true"></span> Submit</button>
+    <a href="{{ url_for('editCategories') }}" class="btn btn-default"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span> Cancel</a>
+</form>
+
+{% endblock content %}

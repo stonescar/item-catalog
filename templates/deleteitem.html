@@ -1,0 +1,17 @@
+{% extends "main.html" %}
+{% block content %}
+
+<h3>Delete {{ item.name }}</h3>
+<form method="POST" onsubmit="return validateForm('del')">
+    <p>Are you sure you want to delete <b>{{ item.name }}</b>?</p>
+    <div class="checkbox">
+        <label for="confirm">
+            <input type="checkbox" name="confirm" id="confirm"> Yes, I am sure
+        </label>
+    </div>
+    <button type="submit" class="btn btn-danger"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span> Delete</button>
+    <a href="#" class="btn btn-default"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span> Cancel</a>
+</form>
+
+
+{% endblock content %}
