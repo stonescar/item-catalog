@@ -4,7 +4,7 @@ from database_setup import Base, Category, Item
 from sqlalchemy import create_engine, desc
 from sqlalchemy.orm import sessionmaker
 from flask import (Flask, render_template, request,
-                   redirect, url_for, flash)  # jsonify
+                   redirect, url_for, flash, jsonify)
 from modules import get_image, helpers
 
 
@@ -176,6 +176,23 @@ def deleteItem(item_id, category_id):
         return redirect(url_for('viewCategory', category_id=item.category_id))
     else:
         return render_template('deleteitem.html', item=item)
+
+
+@app.route('/items/JSON/')
+def allItemsJSON():
+    categories = session.query(Category).all()
+    catsSerialized = []
+    for c in categories:
+        items = session.query(Item).filter_by(category_id=c.id).all()
+        catsSerialized.append(c.serialize(items))
+    return jsonify(Categories=catsSerialized)
+
+
+@app.route('/category/<int:category_id>/JSON/')
+@helpers.category_exists
+def categoryJSON(category_id):
+    items = session.query(Item).filter_by(category_id=category_id).all()
+    return jsonify(Items=[i.serialize for i in items])
 
 
 @app.route('/login/')
