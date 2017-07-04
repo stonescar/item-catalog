@@ -10,6 +10,9 @@
     <!-- Bootstrap -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap-theme.min.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap-social.css') }}">
+    <!-- fontawesome -->
+    <link rel="stylesheet" href="http://netdna.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.css">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
 
     <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
@@ -19,22 +22,7 @@
       <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
     <![endif]-->
     <div class="container">
-        <nav class="navbar navbar-default">
-            <div class="container-fluid">
-                <div class="navbar-header">
-                    <button class="navbar-toggle collapsed" type="button" data-toggle="collapse" data-target="#navbar-menu" aria-espanded="false">
-                        <span class="sr-only">Toggle navigation</span>
-                        <span class="glyphicon glyphicon-user"></span>
-                    </button>
-                    <a href="{{ url_for('front') }}" class="navbar-brand">Item catalog app</a>
-                </div>
-                <!-- Navbar menu -->
-                <div id="navbar-menu" class="navbar-collapse collapse">
-                    <!-- <p class="navbar-text navbar-left">Signed in as Steinar Utstrand</p> -->
-                    <button type="button" class="btn btn-default navbar-btn navbar-right" onclick="window.location='{{ url_for('login') }}'">Sign in</button>
-                </div>
-            </div>
-        </nav>
+        {% include "navbar.html" %}
         <div class="row">
             <div class="col-sm-8 col-sm-push-4 col-md-9 col-md-push-3">
                 {% include "flash.html" %}

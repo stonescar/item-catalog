@@ -1,10 +1,12 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 from functools import wraps
-from database_setup import Category, Item
+from database_setup import Category, Item, User
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from flask import flash, redirect, url_for
+import random
+import string
 
 
 engine = create_engine('sqlite:///itemcatalog.db')
@@ -44,3 +46,32 @@ def item_exists(f):
             return redirect(url_for('viewCategory',
                                     category_id=kw['category_id']))
     return wrapper
+
+
+# User functions
+def getUserID(email):
+    try:
+        user = session.query(User).filter_by(email=email).one()
+        return user.id
+    except:
+        return None
+
+
+def getUserInfo(user_id):
+    user = session.query(User).filter_by(id=user_id).one()
+    return user
+
+
+def createUser(login_session):
+    newUser = User(name=login_session['username'],
+                   email=login_session['email'],
+                   picture=login_session['picture'])
+    session.add(newUser)
+    session.commit()
+    return newUser.id
+
+
+def generateState():
+    state = ''.join(random.choice(
+        string.ascii_uppercase+string.digits) for x in xrange(32))
+    return state

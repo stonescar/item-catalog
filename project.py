@@ -3,8 +3,10 @@
 from database_setup import Base, Category, Item
 from sqlalchemy import create_engine, desc
 from sqlalchemy.orm import sessionmaker
-from flask import (Flask, render_template, request,
-                   redirect, url_for, flash, jsonify)
+from flask import (Flask, render_template, request, redirect, url_for, flash,
+                   jsonify, session as login_session, make_response)
+import json
+import httplib2
 from modules import get_image, helpers
 
 
@@ -198,7 +200,93 @@ def categoryJSON(category_id):
 
 @app.route('/login/')
 def login():
-    return render_template('login.html')
+    state = helpers.generateState()
+    login_session['state'] = state
+    return render_template('login.html', STATE=state)
+
+
+@app.route('/fbconnect', methods=['POST'])
+def fbconnect():
+    if request.args.get('state') != login_session['state']:
+        response = make_response(json.dumps(
+            'Invalid state parameter'), 401)
+        response.headers['Content-type'] = 'application/json'
+        return response
+    access_token = request.data
+
+    # Exchange client token for long-lived server-side token
+    app_id = json.loads(open(
+        'fb_client_secrets.json', 'r').read())['web']['app_id']
+    app_secret = json.loads(open(
+        'fb_client_secrets.json', 'r').read())['web']['app_secret']
+    url = 'https://graph.facebook.com/oauth/access_token?grant_type=fb_exchange_token&client_id=%s&client_secret=%s&fb_exchange_token=%s' % (app_id, app_secret, access_token)  # NOQA
+    h = httplib2.Http()
+    result = h.request(url, 'GET')[1]
+
+    # Use token to get user info from API
+    # Strip expire tag from access token
+    token = result.split(',')[0].split(':')[1].replace('"', '')
+
+    url = 'https://graph.facebook.com/v2.8/me?access_token=%s&fields=name,id,email' % token  # NOQA
+    h = httplib2.Http()
+    result = h.request(url, 'GET')[1]
+
+    data = json.loads(result)
+    login_session['provider'] = 'facebook'
+    login_session['username'] = data["name"]
+    login_session['email'] = data["email"]
+    login_session['facebook_id'] = data["id"]
+    login_session['access_token'] = token
+
+    # Get user picture
+    url = "https://graph.facebook.com/v2.8/me/picture?access_token=%s&redirect=0&height=200&width=200" % token  # NOQA
+    h = httplib2.Http()
+    result = h.request(url, 'GET')[1]
+    data = json.loads(result)
+    login_session['picture'] = data["data"]["url"]
+
+    # Create user, if it doesn't already exist
+    user_id = helpers.getUserID(login_session['email'])
+    if not user_id:
+        user_id = helpers.createUser(login_session)
+    login_session['user_id'] = user_id
+
+    output = ''
+    output += '<h3>Welcome, '
+    output += login_session['username']
+    output += '!</h3>'
+    output += '<img src="'
+    output += login_session['picture']
+    output += '" style="width: 200px; height: 200px; border-radius: 50%;">'
+    flash('You are now logged in as %s (%s)' % (
+        login_session['username'], login_session['email']))
+    return output
+
+
+def fbdisconnect():
+    facebook_id = login_session['facebook_id']
+    access_token = login_session['access_token']
+    url = 'https://graph.facebook.com/%s/permissions?access_token=%s' % (
+        facebook_id, access_token)
+    h = httplib2.Http()
+    h.request(url, 'DELETE')[1]
+
+
+@app.route('/logout/')
+def logout():
+    if 'provider' in login_session:
+        if login_session['provider'] == 'facebook':
+            fbdisconnect()
+            del login_session['facebook_id']
+        del login_session['provider']
+        del login_session['username']
+        del login_session['email']
+        del login_session['picture']
+        del login_session['user_id']
+        flash('You have successfully been logged out')
+    else:
+        flash('!E!You weren\'t logged in to begin with')
+    return redirect(url_for('front'))
 
 
 if __name__ == '__main__':

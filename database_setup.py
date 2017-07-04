@@ -7,16 +7,29 @@ from datetime import datetime
 Base = declarative_base()
 
 
+class User(Base):
+    __tablename__ = 'user'
+
+    id = Column(Integer, primary_key=True)
+    name = Column(String(50), nullable=False)
+    email = Column(String(50), nullable=False)
+    picture = Column(String(250))
+
+
 class Category(Base):
     __tablename__ = 'category'
 
     id = Column(Integer, primary_key=True)
     name = Column(String(150), nullable=False)
+    user_id = Column(Integer, ForeignKey('user.id'))
+    user = relationship(User)
 
     def serialize(self, items):
         return {
             'id': self.id,
             'name': self.name,
+            'creator_id': self.user_id,
+            'creator_name': self.user.name,
             'items': [i.serialize for i in items]
         }
 
@@ -31,6 +44,8 @@ class Item(Base):
     time = Column(DateTime, default=datetime.utcnow)
     category_id = Column(Integer, ForeignKey('category.id'))
     category = relationship(Category)
+    user_id = Column(Integer, ForeignKey('user.id'))
+    user = relationship(User)
 
     @property
     def serialize(self):
@@ -38,19 +53,12 @@ class Item(Base):
             'id': self.id,
             'name': self.name,
             'description': self.description,
-            'pictureURL': self.picture
+            'pictureURL': self.picture,
+            'creator_id': self.user_id,
+            'creator_name': self.user.name
         }
 
 
 if __name__ == '__main__':
     engine = create_engine('sqlite:///itemcatalog.db')
     Base.metadata.create_all(engine)
-
-
-# item = Item(name="item name", id=51, description="Description of item", picture="http://pictureURL.com/picture.jpg")
-# cat = Category(name="Name", id=91)
-# print {
-#     'id': cat.id,
-#     'name': cat.name,
-#     'items': item.serialize
-# }
