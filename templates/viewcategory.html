@@ -15,6 +15,11 @@
         </div>
 {% endfor %}
 <hr>
-<a href="{{ url_for('newItem') }}" class="btn btn-primary"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span> New item</a>
+<div class="creator">Created by: {{ category.user.name }}<img class="creator-pic" src="{{ category.user.picture }}"></div>
+{% if 'username' in session %}
+    <a href="{{ url_for('newItem') }}" class="btn btn-primary">
+        <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> New item
+    </a>
+{% endif %}
 
 {% endblock content %}

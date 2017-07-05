@@ -10,7 +10,7 @@
         <!-- Navbar menu -->
         <div id="navbar-menu" class="navbar-collapse collapse">
             {% if 'username' in session %}
-                <p class="navbar-text navbar-left">Signed in as {{ session['username'] }}</p>
+                <p class="navbar-text navbar-left">Signed in as {{ session['username'] }}<img class="creator-pic" src="{{ session['picture'] }}"></p>
                 <button type="button" class="btn btn-default navbar-btn navbar-right" onclick="window.location='{{ url_for('logout') }}'">Log out</button>
             {% else %}
                 <button type="button" class="btn btn-default navbar-btn navbar-right" onclick="window.location='{{ url_for('login') }}'">Log in</button>           

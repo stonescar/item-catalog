@@ -1,10 +1,20 @@
-<h4>Categories <small><a href="{{ url_for('editCategories') }}">[Edit]</a></small></h4>
-<div class="list-group">
-        {% for category in get_categories() %}
-            {% if "category/%s" % category.id in request.url %}
-            <a href="{{ url_for('viewCategory', category_id=category.id) }}" class="list-group-item active">{{ category.name }}<span class="badge">{{ category.count }}</a>
-            {% else %}
-            <a href="{{ url_for('viewCategory', category_id=category.id) }}" class="list-group-item">{{ category.name }}<span class="badge">{{ category.count }}</a>
-            {% endif %}
-        {% endfor %}
-</div>
+<h4>Categories 
+    {% if 'username' in session %}
+        <small><a href="{{ url_for('editCategories') }}">[Edit]</a></small>    
+    {% endif %}
+</h4>
+    {% with categories=get_categories() %}
+        {% if categories %}
+            <div class="list-group">
+                {% for category in get_categories() %}
+                    {% if "category/%s" % category.id in request.url %}
+                    <a href="{{ url_for('viewCategory', category_id=category.id) }}" class="list-group-item active">{{ category.name }}<span class="badge">{{ category.count }}</a>
+                    {% else %}
+                    <a href="{{ url_for('viewCategory', category_id=category.id) }}" class="list-group-item">{{ category.name }}<span class="badge">{{ category.count }}</a>
+                    {% endif %}
+                {% endfor %}
+            </div>
+        {% else %}
+            <h5>No categories</h5>
+        {% endif %}
+    {% endwith %}

@@ -44,65 +44,107 @@ def viewCategory(category_id):
 
 @app.route('/category/edit/')
 def editCategories():
-    categories = session.query(Category).order_by(Category.name).all()
-    return render_template('editcategories.html', categories=categories)
+    # Require login
+    if 'username' in login_session:
+        categories = session.query(Category).order_by(Category.name).all()
+        return render_template('editcategories.html', categories=categories)
+    else:
+        flash('!E!You must log in first')
+        return redirect(url_for('login'))
 
 
 @app.route('/category/new/', methods=['POST', 'GET'])
 def newCategory():
-    if request.method == 'POST':
-        category = Category(name=request.form['name'])
-        session.add(category)
-        session.commit()
-        flash('Category <b>%s</b> added' % category.name)
-        return redirect(url_for('viewCategory', category_id=category.id))
-    return render_template('newcategory.html')
+    # Require login
+    if 'username' in login_session:
+        if request.method == 'POST':
+            category = Category(name=request.form['name'],
+                                user_id=login_session['user_id'])
+            session.add(category)
+            session.commit()
+            flash('Category <b>%s</b> added' % category.name)
+            return redirect(url_for('viewCategory', category_id=category.id))
+        return render_template('newcategory.html')
+    else:
+        flash('!E!You must log in first')
+        return redirect(url_for('login'))
 
 
 @app.route('/category/<int:category_id>/edit/', methods=['POST', 'GET'])
 @helpers.category_exists
 def editCategory(category_id):
-    category = session.query(Category).filter_by(id=category_id).one()
-    if request.method == 'POST':
-        category.name = request.form['name']
-        session.add(category)
-        session.commit()
-        flash('Category <b>%s</b> has been edited' % category.name)
-        return redirect(url_for('editCategories'))
+    # Require login
+    if 'username' in login_session:
+        category = session.query(Category).filter_by(id=category_id).one()
+        # See if user is category creator
+        if login_session['user_id'] == category.user.id:
+            if request.method == 'POST':
+                category.name = request.form['name']
+                session.add(category)
+                session.commit()
+                flash('Category <b>%s</b> has been edited' % category.name)
+                return redirect(url_for('editCategories'))
+            else:
+                return render_template('editcategory.html', category=category)
+        else:
+            flash('!E!You are not allowed to edit this category')
+            return redirect(url_for('editCategories'))
     else:
-        return render_template('editcategory.html', category=category)
+        flash('!E!You must log in first')
+        return redirect(url_for('login'))
 
 
 @app.route('/category/<int:category_id>/clear/', methods=['POST', 'GET'])
 @helpers.category_exists
 def clearCategory(category_id):
-    category = session.query(Category).filter_by(id=category_id).one()
-    if request.method == 'POST':
-        items = session.query(Item).filter_by(category=category).all()
-        for item in items:
-            session.delete(item)
-        session.commit()
-        flash('All items in category <b>%s</b> has been deleted' %
-              category.name)
-        return redirect(url_for('editCategories'))
+    # Require login
+    if 'username' in login_session:
+        category = session.query(Category).filter_by(id=category_id).one()
+        # See if user is category creator
+        if login_session['user_id'] == category.user.id:
+            if request.method == 'POST':
+                items = session.query(Item).filter_by(category=category).all()
+                for item in items:
+                    session.delete(item)
+                session.commit()
+                flash('All items in category <b>%s</b> has been deleted' %
+                      category.name)
+                return redirect(url_for('editCategories'))
+            else:
+                return render_template('clearcategory.html', category=category)
+        else:
+            flash('!E!You are not allowed to clear this category')
+            return redirect(url_for('editCategories'))
     else:
-        return render_template('clearcategory.html', category=category)
+        flash('!E!You must log in first')
+        return redirect(url_for('login'))
 
 
 @app.route('/category/<int:category_id>/delete/', methods=['POST', 'GET'])
 @helpers.category_exists
 def deleteCategory(category_id):
-    category = session.query(Category).filter_by(id=category_id).one()
-    if request.method == 'POST':
-        items = session.query(Item).filter_by(category=category).all()
-        for item in items:
-            session.delete(item)
-        session.delete(category)
-        session.commit()
-        flash('Category <b>%s</b> has been deleted' % category.name)
-        return redirect(url_for('editCategories'))
+    # Require login
+    if 'username' in login_session:
+        category = session.query(Category).filter_by(id=category_id).one()
+        # See if user is category creator
+        if login_session['user_id'] == category.user.id:
+            if request.method == 'POST':
+                items = session.query(Item).filter_by(category=category).all()
+                for item in items:
+                    session.delete(item)
+                session.delete(category)
+                session.commit()
+                flash('Category <b>%s</b> has been deleted' % category.name)
+                return redirect(url_for('editCategories'))
+            else:
+                return render_template('deletecategory.html',
+                                       category=category)
+        else:
+            flash('!E!You are not allowed to delete this category')
+            return redirect(url_for('editCategories'))
     else:
-        return render_template('deletecategory.html', category=category)
+        flash('!E!You must log in first')
+        return redirect(url_for('login'))
 
 
 @app.route('/category/<int:category_id>/item/<int:item_id>/')
@@ -115,27 +157,33 @@ def viewItem(item_id, category_id):
 
 @app.route('/item/new/', methods=['POST', 'GET'])
 def newItem():
-    if request.method == 'POST':
-        name = request.form['name']
-        if request.form['random-img']:
-            picture = get_image.randomImage(name)
+    # Require login
+    if 'username' in login_session:
+        if request.method == 'POST':
+            name = request.form['name']
+            if request.form['random-img']:
+                picture = get_image.randomImage(name)
+            else:
+                picture = request.form['picture'].encode("utf-8")
+            item = Item(name=name,
+                        description=request.form['description'],
+                        picture=picture,
+                        category_id=request.form['category'],
+                        user_id=login_session['user_id'])
+            session.add(item)
+            session.commit()
+            flash('Item <b>%s</b> added' % item.name)
+            return redirect(url_for('viewCategory',
+                                    category_id=item.category_id))
         else:
-            picture = request.form['picture'].encode("utf-8")
-        item = Item(name=name,
-                    description=request.form['description'],
-                    picture=picture,
-                    category_id=request.form['category'])
-        session.add(item)
-        session.commit()
-        flash('Item <b>%s</b> added' % item.name)
-        return redirect(url_for('viewCategory',
-                                category_id=item.category_id))
+            if request.referrer and 'category' in request.referrer:
+                referrer = int(request.referrer.split("/")[4])
+                return render_template('newitem.html', ref=referrer)
+            else:
+                return render_template('newitem.html')
     else:
-        if request.referrer and 'category' in request.referrer:
-            referrer = int(request.referrer.split("/")[4])
-            return render_template('newitem.html', ref=referrer)
-        else:
-            return render_template('newitem.html')
+        flash('!E!You must log in first')
+        return redirect(url_for('login'))
 
 
 @app.route('/category/<int:category_id>/item/<int:item_id>/edit/',
@@ -143,26 +191,39 @@ def newItem():
 @helpers.category_exists
 @helpers.item_exists
 def editItem(item_id, category_id):
-    item = session.query(Item).filter_by(id=item_id).one()
-    if request.method == 'POST':
-        item.name = request.form['name']
-        item.description = request.form['description']
-        if request.form['random-img']:
-            item.picture = get_image.randomImage(item.name)
+    # Require login
+    if 'username' in login_session:
+        item = session.query(Item).filter_by(id=item_id).one()
+        # See if user is item creator or item's category creator
+        if (login_session['user_id'] == item.user.id or
+                login_session['user_id'] == item.category.user.id):
+            if request.method == 'POST':
+                item.name = request.form['name']
+                item.description = request.form['description']
+                if request.form['random-img']:
+                    item.picture = get_image.randomImage(item.name)
+                else:
+                    item.picture = request.form['picture']
+                item.category_id = request.form['category']
+                session.add(item)
+                session.commit()
+                flash('Item <b>%s</b> has been edited' % item.name)
+                return redirect(url_for('viewItem',
+                                        category_id=category_id,
+                                        item_id=item_id))
+            else:
+                categories = session.query(Category).all()
+                return render_template('edititem.html',
+                                       item=item,
+                                       categories=categories)
         else:
-            item.picture = request.form['picture']
-        item.category_id = request.form['category']
-        session.add(item)
-        session.commit()
-        flash('Item <b>%s</b> has been edited' % item.name)
-        return redirect(url_for('viewItem',
-                                category_id=category_id,
-                                item_id=item_id))
+            flash('!E!You are not allowed to edit this item')
+            return redirect(url_for('viewItem',
+                                    category_id=category_id,
+                                    item_id=item_id))
     else:
-        categories = session.query(Category).all()
-        return render_template('edititem.html',
-                               item=item,
-                               categories=categories)
+        flash('!E!You must log in first')
+        return redirect(url_for('login'))
 
 
 @app.route('/category/<int:category_id>/item/<int:item_id>/delete/',
@@ -170,14 +231,28 @@ def editItem(item_id, category_id):
 @helpers.category_exists
 @helpers.item_exists
 def deleteItem(item_id, category_id):
-    item = session.query(Item).filter_by(id=item_id).one()
-    if request.method == 'POST':
-        session.delete(item)
-        session.commit()
-        flash('Item <b>%s</b> has been deleted' % item.name)
-        return redirect(url_for('viewCategory', category_id=item.category_id))
+    # Require login
+    if 'username' in login_session:
+        item = session.query(Item).filter_by(id=item_id).one()
+        # See if user is item creator or item's category creator
+        if (login_session['user_id'] == item.user.id or
+                login_session['user_id'] == item.category.user.id):
+            if request.method == 'POST':
+                session.delete(item)
+                session.commit()
+                flash('Item <b>%s</b> has been deleted' % item.name)
+                return redirect(url_for('viewCategory',
+                                        category_id=item.category_id))
+            else:
+                return render_template('deleteitem.html', item=item)
+        else:
+            flash('!E!You are not allowed to edit this item')
+            return redirect(url_for('viewItem',
+                                    category_id=category_id,
+                                    item_id=item_id))
     else:
-        return render_template('deleteitem.html', item=item)
+        flash('!E!You must log in first')
+        return redirect(url_for('login'))
 
 
 @app.route('/items/JSON/')
