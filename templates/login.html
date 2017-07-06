@@ -14,6 +14,7 @@
     <!-- fontawesome -->
     <link rel="stylesheet" href="http://netdna.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.css">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <script src="https://apis.google.com/js/client:platform.js?onload=start" async defer></script>
 
     <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
@@ -43,6 +44,17 @@
                         
                     </div><br><br><br> -->
                     <fb:login-button scope="public_profile,email" onlogin="sendTokenToServer()"></fb:login-button>
+
+                     <div id="signinButton">
+                        <span class="g-signin"
+                              data-scope="openid email"
+                              data-clientid="412504806902-68lg5vel0upq16i34h30o58m4e419c9r.apps.googleusercontent.com"
+                              data-redirecturi="postmessage"
+                              data-accesstype="offline"
+                              data-cookiepolicy="single_host_origin"
+                              data-callback="signInCallback"
+                              data-approvalprompt="force"></span>
+                    </div>
 
                     <div id="result"></div>
                 </div>
@@ -104,6 +116,32 @@
               
                 });
             });
+        }
+
+        // Google login
+        function signInCallback(authResult) {
+            if (authResult['code']) {
+                $('#signinButton').hide()
+                $.ajax({
+                    type: 'POST',
+                    url: '/gconnect?state={{STATE}}',
+                    processData: false,
+                    contentType: 'application/octet-stream; charset=utf-8',
+                    data: authResult['code'],
+                    success: function(result) {
+                        if (result) {
+                            $('#result').html('Login successful!<br>'+result+'<br>Redirecting...')
+                            setTimeout(function() {
+                                window.location='/'
+                            }, 4000); 
+                        } else if (authResult['error']) {
+                            console.log('There was an error: ' + authResult['error'])
+                        } else {
+                            $('#result').html('Failed to make a server-side call. Check your configuration and console')
+                        }
+                    }
+                })
+            }
         }
     </script>
 
