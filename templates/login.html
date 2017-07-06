@@ -15,6 +15,8 @@
     <link rel="stylesheet" href="http://netdna.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.css">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
     <script src="https://apis.google.com/js/client:platform.js?onload=start" async defer></script>
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
 
     <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
@@ -31,10 +33,10 @@
 
                 <div class="jumbotron text-center">
                     <h3>Log in</h3>
-                    <!-- <div class="btn-group-vertical" role="group">
+                    <div class="btn-group-vertical" role="group">
                         <button class="btn btn-lg btn-social btn-facebook">
                             <span class="fa fa-facebook"></span> Log in with Facebook
-                        </button>
+                        </button> <!--
                         <div id="googleSignIn" class="btn btn-lg btn-social btn-google">
                             <span class="fa fa-google"></span> Log in with Google
                         </div> -->
@@ -42,8 +44,7 @@
                             <span class="fa fa-github"></span> Log in with GitHub
                         </button>
                         
-                    <!-- </div> --><br><br><br>
-                    <fb:login-button scope="public_profile,email" onlogin="sendTokenToServer()"></fb:login-button>
+                    </div><br><br><br>
 
                      <div id="signinButton">
                         <span class="g-signin"
@@ -79,6 +80,12 @@
                 version    : 'v2.8' // use version 2.8
             });
         };
+        //FB-button event listener
+        $('.btn-facebook').click(function() {
+            FB.login(function(response) {
+                sendTokenToServer()
+            }, {scope: 'email,public_profile', return_scopes: true})
+        })
         // Load the SDK asynchronously
         (function(d, s, id) {
             var js, fjs = d.getElementsByTagName(s)[0];
@@ -104,11 +111,7 @@
                     success: function(result) {
                         // Handle or verify the server response if necessary.
                         if (result) {
-                            $('#result').html('Login Successful!</br>'+ result + '</br>Redirecting...')
-                            setTimeout(function() {
-                                window.location.href = "/";
-                            }, 4000);
-                  
+                            window.location.href = "/";                  
                         } else {
                             $('#result').html('Failed to make a server-side call. Check your configuration and console.');
                         }
@@ -146,8 +149,6 @@
     </script>
 
 
-    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
     <!-- Include all compiled plugins (below), or include individual files as needed -->
     <script src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
     <script src="{{ url_for('static', filename='js/func.js') }}"></script>
