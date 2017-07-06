@@ -37,12 +37,12 @@
                         </button>
                         <div id="googleSignIn" class="btn btn-lg btn-social btn-google">
                             <span class="fa fa-google"></span> Log in with Google
-                        </div>
-                        <button class="btn btn-lg btn-social btn-github">
+                        </div> -->
+                        <button class="btn btn-lg btn-social btn-github" onclick="window.location='https://github.com/login/oauth/authorize?client_id=e5d63ee2e50fc77b5eb7&scope=user:email&state={{STATE}}'">
                             <span class="fa fa-github"></span> Log in with GitHub
                         </button>
                         
-                    </div><br><br><br> -->
+                    <!-- </div> --><br><br><br>
                     <fb:login-button scope="public_profile,email" onlogin="sendTokenToServer()"></fb:login-button>
 
                      <div id="signinButton">
