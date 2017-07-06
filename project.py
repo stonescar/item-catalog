@@ -415,16 +415,9 @@ def gconnect():
         user_id = helpers.createUser(login_session)
     login_session['user_id'] = user_id
 
-    output = ''
-    output += '<h3>Welcome, '
-    output += login_session['username']
-    output += '!</h3>'
-    output += '<img src="'
-    output += login_session['picture']
-    output += '" style="width: 200px; height: 200px; border-radius: 50%;">'
     flash('You are now logged in as %s (%s)' % (
         login_session['username'], login_session['email']))
-    return output
+    return 'success'
 
 
 def gdisconnect():
