@@ -166,10 +166,10 @@ def newItem():
     if 'username' in login_session:
         if request.method == 'POST':
             name = request.form['name']
-            if request.form['random-img']:
+            if len(request.form.getlist('random-img')) > 0:
                 picture = get_image.randomImage(name)
             else:
-                picture = request.form['picture'].encode("utf-8")
+                picture = request.form['picture']
             item = Item(name=name,
                         description=request.form['description'],
                         picture=picture,
@@ -205,7 +205,7 @@ def editItem(item_id, category_id):
             if request.method == 'POST':
                 item.name = request.form['name']
                 item.description = request.form['description']
-                if request.form['random-img']:
+                if len(request.form.getlist('random-img')) > 0:
                     item.picture = get_image.randomImage(item.name)
                 else:
                     item.picture = request.form['picture']
