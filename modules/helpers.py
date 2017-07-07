@@ -1,34 +1,31 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-from modules.setup.app import app
+from modules.setup.app import app, session
 from modules.setup.database import Category, Item, User
 from functools import wraps
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
 from flask import flash, redirect, url_for, session as login_session
 import random
 import string
-
-
-engine = create_engine('sqlite:///itemcatalog.db')
-DBSession = sessionmaker(bind=engine)
-session = DBSession()
 
 
 def category_exists(f):
     """
     Decorator to see if category exists.
     If not, flash message and redirect to front page
+    If the category exists, pass the category along
     """
     @wraps(f)
-    def wrapper(**kw):
-        category = session.query(Category).filter_by(
-            id=kw['category_id']).count()
-        if category > 0:
-            return f(**kw)
-        else:
-            flash("!E!The category ID (%s) does not exist" % kw['category_id'])
+    def wrapper(category_id, item_id=None):
+        try:
+            category = session.query(Category).filter_by(
+                id=category_id).one()
+        except:
+            flash('!E!The category ID (%s) does not exist' % category_id)
             return redirect(url_for('front'))
+        if item_id:
+            return f(category_id, item_id, category)
+        else:
+            return f(category_id, category)
     return wrapper
 
 
@@ -36,16 +33,18 @@ def item_exists(f):
     """
     Decorator to see if item exists.
     If not, flash message and redirect to category page
+    If the item exists, pass the item along
     """
     @wraps(f)
-    def wrapper(**kw):
-        item = session.query(Item).filter_by(id=kw['item_id']).count()
-        if item > 0:
-            return f(**kw)
-        else:
-            flash("!E!The item ID (%s) does not exist" % kw['item_id'])
+    def wrapper(category_id, item_id, category):
+        try:
+            item = session.query(Item).filter_by(
+                id=item_id).one()
+        except:
+            flash('!E!The item ID (%s) does not exist' % item_id)
             return redirect(url_for('viewCategory',
-                                    category_id=kw['category_id']))
+                                    category_id=category_id))
+        return f(item_id, category_id, category, item)
     return wrapper
 
 

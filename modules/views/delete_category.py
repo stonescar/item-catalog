@@ -1,5 +1,5 @@
 from modules.setup.app import app, session
-from modules.setup.database import Category, Item
+from modules.setup.database import Item
 from modules import helpers
 from flask import (render_template, redirect, url_for, request,
                    flash, session as login_session)
@@ -8,8 +8,7 @@ from flask import (render_template, redirect, url_for, request,
 @app.route('/category/<int:category_id>/delete/', methods=['POST', 'GET'])
 @helpers.login_required
 @helpers.category_exists
-def deleteCategory(category_id):
-    category = session.query(Category).filter_by(id=category_id).one()
+def deleteCategory(category_id, category):
     # See if user is category creator
     if login_session['user_id'] == category.user.id:
         if request.method == 'POST':

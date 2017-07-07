@@ -1,5 +1,5 @@
 from modules.setup.app import app, session
-from modules.setup.database import Category, Item
+from modules.setup.database import Category
 from modules import get_image, helpers
 from flask import (render_template, redirect, url_for, request,
                    flash, session as login_session)
@@ -10,8 +10,7 @@ from flask import (render_template, redirect, url_for, request,
 @helpers.login_required
 @helpers.category_exists
 @helpers.item_exists
-def editItem(item_id, category_id):
-    item = session.query(Item).filter_by(id=item_id).one()
+def editItem(item_id, category_id, category, item):
     # See if user is item creator or item's category creator
     if (login_session['user_id'] == item.user.id or
             login_session['user_id'] == item.category.user.id):
