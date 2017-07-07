@@ -1,11 +1,11 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 from modules.setup.app import app
+from modules.setup.database import Category, Item, User
 from functools import wraps
-from database_setup import Category, Item, User
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from flask import flash, redirect, url_for
+from flask import flash, redirect, url_for, session as login_session
 import random
 import string
 
@@ -46,6 +46,21 @@ def item_exists(f):
             flash("!E!The item ID (%s) does not exist" % kw['item_id'])
             return redirect(url_for('viewCategory',
                                     category_id=kw['category_id']))
+    return wrapper
+
+
+def login_required(f):
+    """
+    Decorator to see if user is logged in.
+    If not, flash message and redirect to front page
+    """
+    @wraps(f)
+    def wrapper(**kw):
+        if 'username' in login_session:
+            return f(**kw)
+        else:
+            flash('!E!You must log in first')
+            return redirect(url_for('login'))
     return wrapper
 
 

@@ -7,39 +7,35 @@ from flask import (render_template, redirect, url_for, request,
 
 @app.route('/category/<int:category_id>/item/<int:item_id>/edit/',
            methods=['POST', 'GET'])
+@helpers.login_required
 @helpers.category_exists
 @helpers.item_exists
 def editItem(item_id, category_id):
-    # Require login
-    if 'username' in login_session:
-        item = session.query(Item).filter_by(id=item_id).one()
-        # See if user is item creator or item's category creator
-        if (login_session['user_id'] == item.user.id or
-                login_session['user_id'] == item.category.user.id):
-            if request.method == 'POST':
-                item.name = request.form['name']
-                item.description = request.form['description']
-                if len(request.form.getlist('random-img')) > 0:
-                    item.picture = get_image.randomImage(item.name)
-                else:
-                    item.picture = request.form['picture']
-                item.category_id = request.form['category']
-                session.add(item)
-                session.commit()
-                flash('Item <b>%s</b> has been edited' % item.name)
-                return redirect(url_for('viewItem',
-                                        category_id=category_id,
-                                        item_id=item_id))
+    item = session.query(Item).filter_by(id=item_id).one()
+    # See if user is item creator or item's category creator
+    if (login_session['user_id'] == item.user.id or
+            login_session['user_id'] == item.category.user.id):
+        if request.method == 'POST':
+            item.name = request.form['name']
+            item.description = request.form['description']
+            if len(request.form.getlist('random-img')) > 0:
+                item.picture = get_image.randomImage(item.name)
             else:
-                categories = session.query(Category).all()
-                return render_template('edititem.html',
-                                       item=item,
-                                       categories=categories)
-        else:
-            flash('!E!You are not allowed to edit this item')
+                item.picture = request.form['picture']
+            item.category_id = request.form['category']
+            session.add(item)
+            session.commit()
+            flash('Item <b>%s</b> has been edited' % item.name)
             return redirect(url_for('viewItem',
                                     category_id=category_id,
                                     item_id=item_id))
+        else:
+            categories = session.query(Category).all()
+            return render_template('edititem.html',
+                                   item=item,
+                                   categories=categories)
     else:
-        flash('!E!You must log in first')
-        return redirect(url_for('login'))
+        flash('!E!You are not allowed to edit this item')
+        return redirect(url_for('viewItem',
+                                category_id=category_id,
+                                item_id=item_id))
