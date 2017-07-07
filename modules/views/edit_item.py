@@ -1,5 +1,4 @@
 from modules.setup.app import app, session
-from modules.setup.database import Category
 from modules import get_image, helpers
 from flask import (render_template, redirect, url_for, request,
                    flash, session as login_session)
@@ -29,10 +28,7 @@ def editItem(item_id, category_id, category, item):
                                     category_id=category_id,
                                     item_id=item_id))
         else:
-            categories = session.query(Category).all()
-            return render_template('edititem.html',
-                                   item=item,
-                                   categories=categories)
+            return render_template('edititem.html', item=item)
     else:
         flash('!E!You are not allowed to edit this item')
         return redirect(url_for('viewItem',
