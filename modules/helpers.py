@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+from modules.setup.app import app
 from functools import wraps
 from database_setup import Category, Item, User
 from sqlalchemy import create_engine
@@ -75,3 +76,13 @@ def generateState():
     state = ''.join(random.choice(
         string.ascii_uppercase+string.digits) for x in xrange(32))
     return state
+
+
+@app.context_processor
+def utility_processor():
+    def get_categories():
+        categories = session.query(Category).order_by(Category.name).all()
+        for c in categories:
+            c.count = session.query(Item).filter_by(category_id=c.id).count()
+        return categories
+    return dict(get_categories=get_categories)
