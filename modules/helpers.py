@@ -89,6 +89,9 @@ def check_permission(f):
 
 # User functions
 def getUserID(email):
+    """
+    Returns the user id based on email address
+    """
     try:
         user = session.query(User).filter_by(email=email).one()
         return user.id
@@ -97,11 +100,17 @@ def getUserID(email):
 
 
 def getUserInfo(user_id):
+    """
+    Returns the user based on user id
+    """
     user = session.query(User).filter_by(id=user_id).one()
     return user
 
 
 def createUser(login_session):
+    """
+    Adds a new user in the database
+    """
     newUser = User(name=login_session['username'],
                    email=login_session['email'],
                    picture=login_session['picture'])
@@ -111,6 +120,9 @@ def createUser(login_session):
 
 
 def generateState():
+    """
+    Generates and returns a random state for login
+    """
     state = ''.join(random.choice(
         string.ascii_uppercase+string.digits) for x in xrange(32))
     return state
@@ -119,6 +131,10 @@ def generateState():
 @app.context_processor
 def utility_processor():
     def get_categories():
+        """
+        Returns all categories, with a new variable (count) that shows how
+        many items are in the category
+        """
         categories = session.query(Category).order_by(Category.name).all()
         for c in categories:
             c.count = session.query(Item).filter_by(category_id=c.id).count()
