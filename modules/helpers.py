@@ -63,6 +63,30 @@ def login_required(f):
     return wrapper
 
 
+def check_permission(f):
+    """
+    Decorator to see if user is allowed to edit post.
+    Only category creator can edit, clear or delete category.
+    Item creator can edit or delete item. The creator of the category
+    the item belongs to can also edit or delete item. In other words:
+    The category creator can edit and delete ALL items within the category,
+    even the ones not created by him.
+    """
+    @wraps(f)
+    def wrapper(category_id, category, item_id=None, item=None):
+        if ((item and
+                login_session['user_id'] == item.user.id) or
+                login_session['user_id'] == category.user.id):
+            if item:
+                return f(item_id, category_id, category, item)
+            else:
+                return f(category_id, category)
+        else:
+            flash('!E!You don\'t have permission to preform this operation')
+            return redirect(url_for('front'))
+    return wrapper
+
+
 # User functions
 def getUserID(email):
     try:
