@@ -23,7 +23,7 @@ def category_exists(f):
             flash('!E!The category ID (%s) does not exist' % category_id)
             return redirect(url_for('front'))
         if item_id:
-            return f(category_id, item_id, category)
+            return f(category_id, category, item_id)
         else:
             return f(category_id, category)
     return wrapper
@@ -36,7 +36,7 @@ def item_exists(f):
     If the item exists, pass the item along
     """
     @wraps(f)
-    def wrapper(category_id, item_id, category):
+    def wrapper(category_id, category, item_id):
         try:
             item = session.query(Item).filter_by(
                 id=item_id).one()
@@ -44,7 +44,7 @@ def item_exists(f):
             flash('!E!The item ID (%s) does not exist' % item_id)
             return redirect(url_for('viewCategory',
                                     category_id=category_id))
-        return f(item_id, category_id, category, item)
+        return f(category_id, category, item_id, item)
     return wrapper
 
 
@@ -78,7 +78,7 @@ def check_permission(f):
                 login_session['user_id'] == item.user.id) or
                 login_session['user_id'] == category.user.id):
             if item:
-                return f(item_id, category_id, category, item)
+                return f(category_id, category, item_id, item)
             else:
                 return f(category_id, category)
         else:

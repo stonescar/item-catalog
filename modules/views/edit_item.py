@@ -9,7 +9,7 @@ from flask import render_template, redirect, url_for, request, flash
 @helpers.category_exists
 @helpers.item_exists
 @helpers.check_permission
-def editItem(item_id, category_id, category, item):
+def editItem(category_id, category, item_id, item):
     if request.method == 'POST':
         item.name = request.form['name']
         item.description = request.form['description']

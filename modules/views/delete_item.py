@@ -9,7 +9,7 @@ from flask import render_template, redirect, url_for, request, flash
 @helpers.category_exists
 @helpers.item_exists
 @helpers.check_permission
-def deleteItem(item_id, category_id, category, item):
+def deleteItem(category_id, category, item_id, item):
     if request.method == 'POST':
         session.delete(item)
         session.commit()
