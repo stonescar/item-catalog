@@ -5,6 +5,7 @@ from flask import render_template, redirect, url_for, request, flash
 
 @app.route('/category/<int:category_id>/edit/', methods=['POST', 'GET'])
 @helpers.login_required
+@helpers.csrf_protect
 @helpers.category_exists
 @helpers.check_permission
 def editCategory(category_id, category):

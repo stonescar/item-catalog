@@ -8,6 +8,7 @@ from flask import (render_template, redirect, url_for, request,
 
 @app.route('/item/new/', methods=['POST', 'GET'])
 @helpers.login_required
+@helpers.csrf_protect
 def newItem():
     if request.method == 'POST':
         name = request.form['name']

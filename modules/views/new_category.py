@@ -7,6 +7,7 @@ from flask import (render_template, request, flash, redirect,
 
 @app.route('/category/new/', methods=['POST', 'GET'])
 @helpers.login_required
+@helpers.csrf_protect
 def newCategory():
     if request.method == 'POST':
         category = Category(name=request.form['name'],

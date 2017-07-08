@@ -3,9 +3,10 @@
 from modules.setup.app import app, session
 from modules.setup.database import Category, Item, User
 from functools import wraps
-from flask import flash, redirect, url_for, session as login_session
+from flask import flash, redirect, url_for, request, session as login_session
 import random
 import string
+import os
 
 
 def category_exists(f):
@@ -84,6 +85,32 @@ def check_permission(f):
         else:
             flash('!E!You don\'t have permission to preform this operation')
             return redirect(url_for('front'))
+    return wrapper
+
+
+def csrf_protect(f):
+    """
+    Decorator to check for cross-site request forgeries. If the request has
+    no referrer or the referrer host does not match the app host, flash
+    message and redirect to the front page
+    """
+    @wraps(f)
+    def wrapper(**kw):
+        denied = False
+        if request.method == 'POST':
+            if request.referrer:
+                ref = request.referrer.split('/')[:3]
+                url = request.url.split('/')[:3]
+                if ref != url:
+                    denied = True
+            else:
+                denied = True
+        if denied:
+            flash('''!E!A Cross-Site Request Forgery was suspected.
+                     You have beed redirected to the front page''')
+            return redirect(url_for('front'))
+        else:
+            return f(**kw)
     return wrapper
 
 
