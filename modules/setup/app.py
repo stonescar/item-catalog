@@ -1,6 +1,6 @@
 from flask import Flask
 from sqlalchemy.orm import sessionmaker
-from database_setup import engine
+from database import engine
 
 
 app = Flask('item-catalog')
